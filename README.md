@@ -1,1 +1,1 @@
-This is a implementation of aplication for travelling using simulated annealing alghoritm to find best route.
+This is a implementation of application for travelling using simulated annealing algorithm to find best route.
