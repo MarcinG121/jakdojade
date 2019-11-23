@@ -8,6 +8,6 @@ import lombok.Data;
 public class Edge {
     Node fromNode;
     Node toNode;
-    // TODO representation of time to work like in the clock
     Integer time;
+//    Time arrivalTime;
 }
