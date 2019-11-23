@@ -5,24 +5,12 @@ import lombok.Getter;
 @Getter
 public class Time {
 
-    private static final Integer TIME_BEGIN = 0;
-    private static Time timeInstance = null;
-    private Integer actualTime;
+    private static final Integer START_CYCLE = 0;
+    private static final Integer END_CYCLE = 100;
+    private Integer time;
 
-    private Time(){
-        this.actualTime = TIME_BEGIN;
+    public void createDriveTime(Integer time){
+        if (time > END_CYCLE || time < START_CYCLE) this.time = time;
     }
 
-    public static Time getInstance(){
-        if (timeInstance == null) timeInstance = new Time();
-        return timeInstance;
-    }
-
-    public void start(){
-        this.actualTime = TIME_BEGIN;
-    }
-
-    public Integer next(){
-        return actualTime += 1;
-    }
 }
