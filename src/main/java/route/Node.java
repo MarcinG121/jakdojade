@@ -1,10 +1,10 @@
 package route;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import transport.MeanOfTransport;
 
 @Data
+@AllArgsConstructor
 public class Node {
     Integer id;
-    MeanOfTransport transport;
 }

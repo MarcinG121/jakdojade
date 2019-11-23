@@ -1,10 +1,13 @@
 package route;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
+@AllArgsConstructor
 public class Edge {
     Node fromNode;
     Node toNode;
-    Float time;
+    // TODO representation of time to work like in the clock
+    Integer time;
 }
