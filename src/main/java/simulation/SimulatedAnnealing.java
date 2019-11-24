@@ -1,61 +1,46 @@
 package simulation;
 
-import mocks.MockNetworks;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import route.Edge;
 import route.Network;
 import route.Node;
 import route.Route;
 
-import java.util.*;
+import java.util.List;
+import java.util.Random;
 
-
+@Data
+@AllArgsConstructor
 public class SimulatedAnnealing {
 
-    // Final temperature to which the system cools (iteration terminates)
-    public static double T_min = 1;
+    private double minTemp;
+    private double collingRate;
+    private int iterationsNum;
+    private double initialTemp;
+    private Node sourceNode;
+    private Node destinationNode;
+    private Network network;
 
-    // Coefficient of decrease temperature
-    public static double collingRate = 0.9;
-
-    // Number of iterations before decreasing temperature
-    public static int numIterations = 100;
-
-    // Initial temperature
-    public static double T = 1000;
-
-    // Initial node
-    public static Node src = new Node(1);
-
-    // Destination node
-    public static Node dest = new Node(2);
-
-    // Network
-    public static Network network = MockNetworks.getNetworkFour();
-
-    // Calculate the acceptance probability
-    public static double acceptanceProbability(int time, int newTime, double temperature) {
-        return newTime < time ? 1 : Math.exp((time - newTime) / temperature);
-    }
-
-
-    public static void main(String[] args) {
+    public List<Edge> solve() {
         System.out.println("Simulated annealing is running...");
 
         Route route = new Route();
-        int time = route.calculateJourneyTime(src, dest, network);
+        int time = route.calculateJourneyTime(sourceNode, destinationNode, network);
         int newTime = 0;
 
-        while(T_min < T) {
-            for(int i = 0; i < numIterations; i++) {
-                assert true; // TO DO if is needed
+        while(minTemp < initialTemp) {
+            for(int i = 0; i < iterationsNum; i++) {
+                assert true; // TODO if is needed
             }
 
             // Get time of solution
             Route newRoute = new Route();
-            newTime = newRoute.calculateJourneyTime(src, dest, network);
+            newTime = newRoute.calculateJourneyTime(sourceNode, destinationNode, network);
 
             // Decide to accept solution
             Random r = new Random();
-            if(r.nextDouble() < acceptanceProbability(time, newTime, T)) {
+            if(r.nextDouble() < acceptanceProbability(time, newTime, initialTemp)) {
                 route = newRoute;
             }
 
@@ -65,9 +50,12 @@ public class SimulatedAnnealing {
             }
 
             // System cooling
-            T *= collingRate;
+            initialTemp *= collingRate;
         }
         System.out.println("Final solution is: " + time);
-
+        return null;
+    }
+    private double acceptanceProbability(int time, int newTime, double temperature) {
+        return newTime < time ? 1 : Math.exp((time - newTime) / temperature);
     }
 }

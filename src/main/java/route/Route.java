@@ -1,8 +1,6 @@
 package route;
 
 
-import simulation.Time;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -11,7 +9,7 @@ public class Route {
 
     private List<Node> visited = new ArrayList<Node>();
 
-    public List<Edge> findRoute(Node from, Node to, Network network){
+    public List<Edge> findFirstRoute(Node from, Node to, Network network){
         List<Edge> result = new ArrayList<Edge>();
         Node current = from;
         Integer hops = 0;
@@ -35,17 +33,19 @@ public class Route {
                 }
             }
         }
+
         return result;
     }
+
 
 
     public Integer calculateJourneyTime(Node from, Node to, Network network) {
         Integer time = 0;
         Route route = new Route();
-
-        if(!route.findRoute(from, to, network).isEmpty()) {
-            for (Edge edge : route.findRoute(from, to, network)) {
-                time += edge.time;
+        List<Edge> trace = route.findFirstRoute(from, to, network);
+        if(!trace.isEmpty()) {
+            for (Edge edge : trace) {
+                time += edge.getTime();
             }
         } else {
             time = Integer.MAX_VALUE;

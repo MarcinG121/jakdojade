@@ -14,7 +14,6 @@ public class Environment {
 
         System.out.println(MockNetworks.getNetworkFour());
 
-
     }
 
     @Test
@@ -23,10 +22,11 @@ public class Environment {
         Network network = MockNetworks.getNetworkFour();
         Route route = new Route();
 
-        List<Edge> re = route.findRoute(new Node(1), new Node(2), network);
+        List<Edge> re = route.findFirstRoute(new Node(1), new Node(2), network);
         Integer time_re = route.calculateJourneyTime(new Node(1), new Node(2), network);
 
         System.out.println(re);
         System.out.println(time_re);
+
     }
 }

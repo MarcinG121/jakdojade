@@ -9,8 +9,8 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 public class Network {
-    MeanOfTransport meanOfTransport;
-    List<List<Edge>> theNetwork;
+    private MeanOfTransport meanOfTransport;
+    private List<List<Edge>> theNetwork;
 
     public List<Edge> getRow(Integer num){
         return this.theNetwork.get(num-1);

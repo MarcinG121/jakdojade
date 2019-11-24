@@ -9,7 +9,7 @@ public class Time {
     private static final Integer END_CYCLE = 100;
     private Integer time;
 
-    public void createDriveTime(Integer time){
+    public void createArrivalsTimes(Integer time){
         if (time > END_CYCLE || time < START_CYCLE) this.time = time;
     }
 
