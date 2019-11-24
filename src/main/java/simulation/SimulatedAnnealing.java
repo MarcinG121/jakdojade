@@ -1,5 +1,10 @@
 package simulation;
 
+import mocks.MockNetworks;
+import route.Network;
+import route.Node;
+import route.Route;
+
 import java.util.*;
 
 
@@ -17,6 +22,15 @@ public class SimulatedAnnealing {
     // Initial temperature
     public static double T = 1000;
 
+    // Initial node
+    public static Node src = new Node(1);
+
+    // Destination node
+    public static Node dest = new Node(2);
+
+    // Network
+    public static Network network = MockNetworks.getNetworkFour();
+
     // Calculate the acceptance probability
     public static double acceptanceProbability(int time, int newTime, double temperature) {
         return newTime < time ? 1 : Math.exp((time - newTime) / temperature);
@@ -26,27 +40,34 @@ public class SimulatedAnnealing {
     public static void main(String[] args) {
         System.out.println("Simulated annealing is running...");
 
+        Route route = new Route();
+        int time = route.calculateJourneyTime(src, dest, network);
+        int newTime = 0;
+
         while(T_min < T) {
             for(int i = 0; i < numIterations; i++) {
-                // TO DO
+                assert true; // TO DO if is needed
             }
 
-            // Get time of solutions
-            int time = 0;
-            int newTime = 0;
+            // Get time of solution
+            Route newRoute = new Route();
+            newTime = newRoute.calculateJourneyTime(src, dest, network);
 
             // Decide to accept solution
             Random r = new Random();
             if(r.nextDouble() < acceptanceProbability(time, newTime, T)) {
-                // create current solution
+                route = newRoute;
             }
 
             // Keep best solution
-            // TO DO
+            if(newTime < time) {
+                time = newTime;
+            }
 
             // System cooling
             T *= collingRate;
         }
-        System.out.println("Final solution is: ...");
+        System.out.println("Final solution is: " + time);
+
     }
 }

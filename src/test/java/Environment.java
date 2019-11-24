@@ -24,12 +24,9 @@ public class Environment {
         Route route = new Route();
 
         List<Edge> re = route.findRoute(new Node(1), new Node(2), network);
+        Integer time_re = route.calculateJourneyTime(new Node(1), new Node(2), network);
 
         System.out.println(re);
+        System.out.println(time_re);
     }
-
-
-
-
-
 }
