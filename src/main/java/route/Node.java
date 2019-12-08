@@ -1,10 +1,8 @@
 package route;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
-@AllArgsConstructor
 public class Node {
     private Integer id;
     private Integer x;
@@ -14,5 +12,11 @@ public class Node {
         this.id = id;
         this.x = 0;
         this.y = 0;
+    }
+
+    public Node(Integer id, Integer x, Integer y){
+        this.id = id;
+        this.x = x;
+        this.y = y;
     }
 }

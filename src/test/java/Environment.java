@@ -3,7 +3,7 @@ import org.junit.jupiter.api.Test;
 import route.Edge;
 import route.Network;
 import route.Node;
-import route.Route;
+import route.RouteGenerator;
 
 import java.util.List;
 
@@ -20,10 +20,10 @@ public class Environment {
     public void testFindRoute(){
 
         Network network = MockNetworks.getNetworkFour();
-        Route route = new Route();
+        RouteGenerator routeGenerator = new RouteGenerator();
 
-        List<Edge> re = route.findFirstRoute(new Node(1), new Node(2), network);
-        Integer time_re = route.calculateJourneyTime(new Node(1), new Node(2), network);
+        List<Edge> re = routeGenerator.generateRoute(new Node(1), new Node(2), network);
+        Integer time_re = routeGenerator.calculateJourneyTime(new Node(1), new Node(2), network);
 
         System.out.println(re);
         System.out.println(time_re);

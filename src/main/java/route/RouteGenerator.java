@@ -5,24 +5,46 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class Route {
+public class RouteGenerator {
 
-    private List<Node> visited = new ArrayList<Node>();
+    private List<Node> visited = new ArrayList<>();
+    private List<Edge> result = new ArrayList<>();
+    private Network network;
+    private Node from;
+    private Node to;
 
-    public List<Edge> findFirstRoute(Node from, Node to, Network network){
-        List<Edge> result = new ArrayList<Edge>();
+    public RouteGenerator(Network network, Node from, Node to) {
+        this.network = network;
+        this.from = from;
+        this.to = to;
+    }
+
+    public void changeNetwork(Network network) {
+        this.network = network;
+    }
+
+    public void changeDestinationNode(Node to){
+        this.to = to;
+    }
+
+    public void changeSourceNode(Node from){
+        this.from = from;
+    }
+
+    public List<Edge> generateRoute(){
+
         Node current = from;
-        Integer hops = 0;
+        int hops = 0;
         visited.add(current);
 
-        while (hops <= Math.sqrt(network.getTheNetwork().size())){
-            Edge next = findDirectlyConnected(current, to, network);
+        while (hops <= Math.sqrt(network.getNetwork().size())){
+            Edge next = findDirectlyConnected(current);
             if ( next != null){
                 result.add(next);
                 return result;
             }
             else {
-                Edge nextHop = nextHops(current, to, network);
+                Edge nextHop = nextHops(current);
                 if ( nextHop == null ) {
                     return result;
                 } else {
@@ -37,14 +59,10 @@ public class Route {
         return result;
     }
 
-
-
-    public Integer calculateJourneyTime(Node from, Node to, Network network) {
+    public Integer calculateJourneyTime() {
         Integer time = 0;
-        Route route = new Route();
-        List<Edge> trace = route.findFirstRoute(from, to, network);
-        if(!trace.isEmpty()) {
-            for (Edge edge : trace) {
+        if(!result.isEmpty()) {
+            for (Edge edge : result) {
                 time += edge.getTime();
             }
         } else {
@@ -54,7 +72,7 @@ public class Route {
     }
 
 
-    private Edge findDirectlyConnected(Node current, Node to, Network network){
+    private Edge findDirectlyConnected(Node current){
         List<Edge> row = network.getRow(current.getId());
         for (Edge edge: row){
             if (edge.getToNode().equals(to)) return edge;
@@ -62,13 +80,13 @@ public class Route {
         return null;
     }
 
-    private Edge nextHops(Node current, Node to, Network network){
+    private Edge nextHops(Node current){
         List<Edge> row = network.getRow(current.getId());
         List<Edge> noVisited = new ArrayList<Edge>();
         for (Edge edge: row){
             if (!visited.contains(edge.getToNode())){
                 noVisited.add(edge);
-                Edge nextHops = findDirectlyConnected(edge.getToNode(), to, network);
+                Edge nextHops = findDirectlyConnected(edge.getToNode());
                 if (  nextHops != null){
                     return edge;
                 }

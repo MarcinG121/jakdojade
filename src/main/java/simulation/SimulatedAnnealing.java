@@ -2,13 +2,11 @@ package simulation;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import route.Edge;
-import route.Network;
-import route.Node;
-import route.Route;
+import route.*;
+import simulation.result.BestResults;
+import simulation.result.Result;
 
 import java.util.List;
-import java.util.Random;
 
 @Data
 @AllArgsConstructor
@@ -17,45 +15,56 @@ public class SimulatedAnnealing {
     private double minTemp;
     private double collingRate;
     private int iterationsNum;
-    private double initialTemp;
+    private double actualTemp;
     private Node sourceNode;
     private Node destinationNode;
     private Network network;
+    private BestResults bestResults;
+    private Result actualBestResult;
 
-    public List<Edge> solve() {
-        System.out.println("Simulated annealing is running...");
+    public BestResults solve() {
 
-        Route route = new Route();
-        int time = route.calculateJourneyTime(sourceNode, destinationNode, network);
-        int newTime = 0;
+        RouteCorrector routeCorrector = new RouteCorrector(network, sourceNode, destinationNode);
+        RouteGenerator routeGenerator = new RouteGenerator(network, sourceNode, destinationNode);
+        List<Edge> firstRoute = routeGenerator.generateRoute();
+        actualBestResult = new Result(firstRoute, routeGenerator.calculateJourneyTime());
+        Integer time = routeGenerator.calculateJourneyTime();
+        Integer newTime = 0;
 
-        while(minTemp < initialTemp) {
-            for(int i = 0; i < iterationsNum; i++) {
-                assert true; // TODO if is needed
+        while(actualTemp > minTemp) {
+
+            List<Edge> newRoute = correctSolution(routeCorrector, routeGenerator);
+            newTime = routeGenerator.calculateJourneyTime();
+            Result newResult = new Result(newRoute, newTime);
+
+            if( time > newTime) {
+                actualBestResult = newResult;
+            }
+            else {
+                if (acceptanceProbability(time, newTime)){
+                    actualBestResult = newResult;
+                }
             }
 
-            // Get time of solution
-            Route newRoute = new Route();
-            newTime = newRoute.calculateJourneyTime(sourceNode, destinationNode, network);
-
-            // Decide to accept solution
-            Random r = new Random();
-            if(r.nextDouble() < acceptanceProbability(time, newTime, initialTemp)) {
-                route = newRoute;
-            }
-
-            // Keep best solution
-            if(newTime < time) {
-                time = newTime;
-            }
-
-            // System cooling
-            initialTemp *= collingRate;
+            decreaseTemperature();
         }
-        System.out.println("Final solution is: " + time);
-        return null;
+        return this.bestResults;
     }
-    private double acceptanceProbability(int time, int newTime, double temperature) {
-        return newTime < time ? 1 : Math.exp((time - newTime) / temperature);
+
+    private List<Edge> correctSolution(RouteCorrector routeCorrector, RouteGenerator routeGenerator) {
+        Network closedNeighbors = routeCorrector.findClosedNeighbors();
+        routeGenerator.changeNetwork(closedNeighbors);
+        return routeGenerator.generateRoute();
+    }
+
+    // TODO should return boolean if accept new solution or no
+    private boolean acceptanceProbability(int time, int newTime) {
+//        newTime < time ? 1 : Math.exp((time - newTime) / actualTemp);
+        return true;
+    }
+
+    // TODO this function should depend on iterationNum
+    private void decreaseTemperature() {
+        this.actualTemp *= this.collingRate;
     }
 }
