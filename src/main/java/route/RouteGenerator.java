@@ -1,6 +1,8 @@
 package route;
 
 
+import simulation.result.Result;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -31,7 +33,7 @@ public class RouteGenerator {
         this.from = from;
     }
 
-    public List<Edge> generateRoute(){
+    public Result generateRoute(){
 
         Node current = from;
         int hops = 0;
@@ -41,12 +43,12 @@ public class RouteGenerator {
             Edge next = findDirectlyConnected(current);
             if ( next != null){
                 result.add(next);
-                return result;
+                return new Result(result, calculateJourneyTime());
             }
             else {
                 Edge nextHop = nextHops(current);
                 if ( nextHop == null ) {
-                    return result;
+                    return new Result(result, calculateJourneyTime());
                 } else {
                     current = nextHop.getToNode();
                     hops += 1;
@@ -56,10 +58,10 @@ public class RouteGenerator {
             }
         }
 
-        return result;
+        return new Result(result, calculateJourneyTime());
     }
 
-    public Integer calculateJourneyTime() {
+    private Integer calculateJourneyTime() {
         Integer time = 0;
         if(!result.isEmpty()) {
             for (Edge edge : result) {
