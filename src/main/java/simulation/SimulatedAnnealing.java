@@ -36,7 +36,7 @@ public class SimulatedAnnealing {
             Result newResult = correctSolution(routeCorrector, routeGenerator);
             newTime = newResult.getCost();
 
-            if( time > newTime) {
+            if( newTime > time ) {
                 actualBestResult = newResult;
             }
             else {
