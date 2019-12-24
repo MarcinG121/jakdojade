@@ -32,18 +32,19 @@ public class RouteCorrector {
 
     private void reduceNetwork(List<Node> targetNeighbors){
 
-        this.network.setNetwork(reduceRows(targetNeighbors));
+        this.network.setNetwork(reduceRows(targetNeighbors));ccc
         this.network.setNetwork( this.network.getNetwork().stream()
                                     .map(row -> reduceColumns(row, targetNeighbors))
                                     .collect(Collectors.toList()) );
     }
 
-    // TODO function choosing is a node in good direction
     private boolean isGoodDirection(Node node){
-        if (this.from.getX() > this.target.getX()) {
-            return true;
-        }
-        return false;
+        float A_1 = (this.target.getY() - this.from.getY()) / (this.target.getX() - this.from.getX());
+        float A_2 = -(1 / A_1);
+        float B_2 = this.from.getY() - A_2*from.from.getX();
+
+        return A_2*node.getX() + B_2 < node.getY();
+
     }
 
     private List<List<Edge>> reduceRows(List<Node> targetNeighbors) {
@@ -57,11 +58,5 @@ public class RouteCorrector {
                 .filter(col -> targetNeighbors.contains(col.getToNode()))
                 .collect(Collectors.toList());
     }
-
-
-
-
-
-
 
 }

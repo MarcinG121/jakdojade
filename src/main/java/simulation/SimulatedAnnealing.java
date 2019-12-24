@@ -2,12 +2,11 @@ package simulation;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import route.Network;
-import route.Node;
-import route.RouteCorrector;
-import route.RouteGenerator;
+import route.*;
 import simulation.result.BestResults;
 import simulation.result.Result;
+
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -27,20 +26,22 @@ public class SimulatedAnnealing {
 
         RouteCorrector routeCorrector = new RouteCorrector(network, sourceNode, destinationNode);
         RouteGenerator routeGenerator = new RouteGenerator(network, sourceNode, destinationNode);
-        actualBestResult = routeGenerator.generateRoute();
-        Integer time = actualBestResult.getCost();
+        List<Edge> firstRoute = routeGenerator.generateRoute();
+        actualBestResult = new Result(firstRoute, routeGenerator.calculateJourneyTime());
+        Integer time = routeGenerator.calculateJourneyTime();
         Integer newTime = 0;
 
         while(actualTemp > minTemp) {
 
-            Result newResult = correctSolution(routeCorrector, routeGenerator);
-            newTime = newResult.getCost();
+            List<Edge> newRoute = correctSolution(routeCorrector, routeGenerator);
+            newTime = routeGenerator.calculateJourneyTime();
+            Result newResult = new Result(newRoute, newTime);
 
-            if( newTime > time ) {
+            if (time > newTime) {
                 actualBestResult = newResult;
             }
             else {
-                if (acceptanceProbability(time, newTime)){
+                if (acceptanceProbability(time, newTime)) {
                     actualBestResult = newResult;
                 }
             }
@@ -50,22 +51,22 @@ public class SimulatedAnnealing {
         return this.bestResults;
     }
 
-    private Result correctSolution(RouteCorrector routeCorrector, RouteGenerator routeGenerator) {
+    private List<Edge> correctSolution(RouteCorrector routeCorrector, RouteGenerator routeGenerator) {
         Network closedNeighbors = routeCorrector.findClosedNeighbors();
         routeGenerator.changeNetwork(closedNeighbors);
         return routeGenerator.generateRoute();
     }
 
-    // TODO should return boolean if accept new solution na ćwiczeniach to byla ta funkcja z exp(cos tam) która liczyła
-    // TODO prawdopodobieństwo przyjęcia nowego rozwiązania początkowego
     private boolean acceptanceProbability(int time, int newTime) {
-//        newTime < time ? 1 : Math.exp((time - newTime) / actualTemp);
-        return false;
+        if (newTime < time) {
+            return true;
+        }
+
+        Random r = new Random();
+        return r.nextInt() < Math.exp((time - newTime) / actualTemp);
     }
 
     // TODO this function should depend on iterationNum
-    // TODO trzeba obmyśleć jakiś wzorek w którym obniżanie temperatury będzie zależało od liczby iteracji
-    // TODO nie koniecznie tak jak teraz musis to być zależnośc liniowa
     private void decreaseTemperature() {
         this.actualTemp *= this.collingRate;
     }
