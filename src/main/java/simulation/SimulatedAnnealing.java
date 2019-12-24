@@ -6,17 +6,21 @@ import route.*;
 import simulation.result.BestResults;
 import simulation.result.Result;
 
+import java.lang.Math;
 import java.util.List;
+import java.io.*;
 
 @Data
 @AllArgsConstructor
 public class SimulatedAnnealing {
 
-    private double minTemp;
-    private double collingRate;
-    private int iterationsNum;
+    private double initTemp;
     private double actualTemp;
+    private double minTemp;
+    private int iterationsNum;
     private double K_b;
+    private String typeCooling;
+
     private Node sourceNode;
     private Node destinationNode;
     private Network network;
@@ -30,9 +34,9 @@ public class SimulatedAnnealing {
         List<Edge> firstRoute = routeGenerator.generateRoute();
         actualBestResult = new Result(firstRoute, routeGenerator.calculateJourneyTime());
         Integer time = routeGenerator.calculateJourneyTime();
-        Integer newTime = 0;
+        Integer newTime;
 
-        while(actualTemp > minTemp) {
+        while (actualTemp > minTemp) {
 
             List<Edge> newRoute = correctSolution(routeCorrector, routeGenerator);
             newTime = routeGenerator.calculateJourneyTime();
@@ -40,13 +44,11 @@ public class SimulatedAnnealing {
 
             if (time > newTime) {
                 actualBestResult = newResult;
-            }
-            else {
+            } else {
                 if (acceptanceProbability(time, newTime)) {
                     actualBestResult = newResult;
                 }
             }
-
             decreaseTemperature();
         }
         return this.bestResults;
@@ -58,26 +60,26 @@ public class SimulatedAnnealing {
         return routeGenerator.generateRoute();
     }
 
-    private boolean acceptanceProbability(int time, int newTime) {
-        if (newTime < time) {
-            return true;
-        }
-
+    private boolean acceptanceProbability(Integer time, Integer newTime) {
         Random r = new Random();
-        return r.nextInt() < Math.exp((time - newTime) / (actualTemp*K_b);
+
+        return r.nextInt() < Math.exp((time - newTime) / (actualTemp * K_b));
     }
 
-    // TODO this function should depend on iterationNum
-    private void decreaseTemperature(String typeCooling) {
-        switch (typeCooling):
-        case "Linear":
-            this.actualTemp *= this.collingRate;
-            break;
-        case "Geometrical":
-            break;
-        case "Logarytmical":
-            break;
-        default:
-            System.out.println("You entered the wrong type of cooling.")
+    private void decreaseTemperature() {
+        switch (this.typeCooling) {
+            case "Linear":
+                this.actualTemp -= (this.initTemp - this.minTemp) / this.iterationsNum;
+                break;
+            case "Geometrical":
+                this.actualTemp *= Math.pow(this.minTemp / this.initTemp, 1 / this.iterationsNum);
+                break;
+            case "Logarytmical":
+                this.actualTemp /= 1 + this.actualTemp *
+                        ((this.initTemp - this.minTemp) / (this.iterationsNum * this.minTemp * this.actualTemp));
+                break;
+            default:
+                System.out.println("You entered the wrong type of cooling.");
+        }
     }
 }
