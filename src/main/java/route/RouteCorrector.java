@@ -39,9 +39,9 @@ public class RouteCorrector {
     }
 
     private boolean isGoodDirection(Node node){
-        float A_1 = (this.target.getY() - this.from.getY()) / (this.target.getX() - this.from.getX());
-        float A_2 = -(1 / A_1);
-        float B_2 = this.from.getY() - A_2*from.from.getX();
+        double A_1 = (this.target.getY() - this.from.getY()) / (this.target.getX() - this.from.getX());
+        double A_2 = -(1 / A_1);
+        double B_2 = this.from.getY() - A_2*from.from.getX();
 
         return A_2*node.getX() + B_2 < node.getY();
 

@@ -16,6 +16,7 @@ public class SimulatedAnnealing {
     private double collingRate;
     private int iterationsNum;
     private double actualTemp;
+    private double K_b;
     private Node sourceNode;
     private Node destinationNode;
     private Network network;
@@ -63,11 +64,20 @@ public class SimulatedAnnealing {
         }
 
         Random r = new Random();
-        return r.nextInt() < Math.exp((time - newTime) / actualTemp);
+        return r.nextInt() < Math.exp((time - newTime) / (actualTemp*K_b);
     }
 
     // TODO this function should depend on iterationNum
-    private void decreaseTemperature() {
-        this.actualTemp *= this.collingRate;
+    private void decreaseTemperature(String typeCooling) {
+        switch (typeCooling):
+        case "Linear":
+            this.actualTemp *= this.collingRate;
+            break;
+        case "Geometrical":
+            break;
+        case "Logarytmical":
+            break;
+        default:
+            System.out.println("You entered the wrong type of cooling.")
     }
 }
