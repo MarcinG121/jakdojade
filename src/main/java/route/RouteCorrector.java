@@ -32,16 +32,16 @@ public class RouteCorrector {
 
     private void reduceNetwork(List<Node> targetNeighbors){
 
-        this.network.setNetwork(reduceRows(targetNeighbors));ccc
+        this.network.setNetwork(reduceRows(targetNeighbors));
         this.network.setNetwork( this.network.getNetwork().stream()
                                     .map(row -> reduceColumns(row, targetNeighbors))
                                     .collect(Collectors.toList()) );
     }
 
-    private boolean isGoodDirection(Node node){
+    private boolean isGoodDirection(Node node) {
         double A_1 = (this.target.getY() - this.from.getY()) / (this.target.getX() - this.from.getX());
         double A_2 = -(1 / A_1);
-        double B_2 = this.from.getY() - A_2*from.from.getX();
+        double B_2 = this.from.getY() - A_2*from.getX();
 
         return A_2*node.getX() + B_2 < node.getY();
 

@@ -1,23 +1,23 @@
 package simulation;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import route.*;
+import route.Network;
+import route.Node;
+import route.RouteCorrector;
+import route.RouteGenerator;
 import simulation.result.BestResults;
 import simulation.result.Result;
 
-import java.lang.Math;
-import java.util.List;
-import java.io.*;
+import java.util.Random;
 
 @Data
-@AllArgsConstructor
 public class SimulatedAnnealing {
 
     private double initTemp;
-    private double actualTemp;
     private double minTemp;
+    private double collingRate;
     private int iterationsNum;
+    private double actualTemp;
     private double K_b;
     private String typeCooling;
 
@@ -27,26 +27,39 @@ public class SimulatedAnnealing {
     private BestResults bestResults;
     private Result actualBestResult;
 
+    public SimulatedAnnealing(double initTemp, double minTemp, double collingRate, int iterationsNum, double k_b,
+                              String typeCooling, Node sourceNode, Node destinationNode, Network network)
+    {
+        this.initTemp = initTemp;
+        this.actualTemp = initTemp;
+        this.minTemp = minTemp;
+        this.collingRate = collingRate;
+        this.iterationsNum = iterationsNum;
+        this.K_b = k_b;
+        this.typeCooling = typeCooling;
+        this.sourceNode = sourceNode;
+        this.destinationNode = destinationNode;
+        this.network = network;
+    }
+
     public BestResults solve() {
 
         RouteCorrector routeCorrector = new RouteCorrector(network, sourceNode, destinationNode);
         RouteGenerator routeGenerator = new RouteGenerator(network, sourceNode, destinationNode);
-        List<Edge> firstRoute = routeGenerator.generateRoute();
-        actualBestResult = new Result(firstRoute, routeGenerator.calculateJourneyTime());
-        Integer time = routeGenerator.calculateJourneyTime();
+        Result firstRoute = routeGenerator.generateRoute();
+        Integer time = firstRoute.getCost();
         Integer newTime;
 
         while (actualTemp > minTemp) {
 
-            List<Edge> newRoute = correctSolution(routeCorrector, routeGenerator);
-            newTime = routeGenerator.calculateJourneyTime();
-            Result newResult = new Result(newRoute, newTime);
+            Result newRoute = correctSolution(routeCorrector, routeGenerator);
+            newTime = newRoute.getCost();
 
             if (time > newTime) {
-                actualBestResult = newResult;
+                actualBestResult = newRoute;
             } else {
                 if (acceptanceProbability(time, newTime)) {
-                    actualBestResult = newResult;
+                    actualBestResult = newRoute;
                 }
             }
             decreaseTemperature();
@@ -54,7 +67,7 @@ public class SimulatedAnnealing {
         return this.bestResults;
     }
 
-    private List<Edge> correctSolution(RouteCorrector routeCorrector, RouteGenerator routeGenerator) {
+    private Result correctSolution(RouteCorrector routeCorrector, RouteGenerator routeGenerator) {
         Network closedNeighbors = routeCorrector.findClosedNeighbors();
         routeGenerator.changeNetwork(closedNeighbors);
         return routeGenerator.generateRoute();
@@ -78,8 +91,6 @@ public class SimulatedAnnealing {
                 this.actualTemp /= 1 + this.actualTemp *
                         ((this.initTemp - this.minTemp) / (this.iterationsNum * this.minTemp * this.actualTemp));
                 break;
-            default:
-                System.out.println("You entered the wrong type of cooling.");
         }
     }
 }

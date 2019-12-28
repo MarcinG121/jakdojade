@@ -1,32 +1,33 @@
 import mocks.MockNetworks;
 import org.junit.jupiter.api.Test;
-import route.Edge;
 import route.Network;
 import route.Node;
-import route.RouteGenerator;
-
-import java.util.List;
+import simulation.SimulatedAnnealing;
 
 public class Environment {
 
     @Test
     public void testMockNetwork(){
 
-        System.out.println(MockNetworks.getNetworkFour());
+        System.out.println(MockNetworks.getNetworkTwenty());
 
     }
 
     @Test
     public void testFindRoute(){
+        double initTemp = 1000;
+        double minTemp = 10;
+        double collingRate = 0.9;
+        int iterationsNum = 10;
+        double K_b = 1.380649 * 1E-23;
+        String typeCooling = "Linear";
+        Network network = MockNetworks.getNetworkTwenty();
+        Node sourceNode = network.getNetwork().get(2).get(1).getToNode();
+        Node destinationNode = network.getNetwork().get(14).get(1).getToNode();
 
-        Network network = MockNetworks.getNetworkFour();
-        RouteGenerator routeGenerator = new RouteGenerator();
-
-        List<Edge> re = routeGenerator.generateRoute(new Node(1), new Node(2), network);
-        Integer time_re = routeGenerator.calculateJourneyTime(new Node(1), new Node(2), network);
-
-        System.out.println(re);
-        System.out.println(time_re);
+        SimulatedAnnealing annealing = new SimulatedAnnealing(initTemp, minTemp, collingRate, iterationsNum, K_b,
+                typeCooling, sourceNode,  destinationNode, network);
+        System.out.println(annealing.solve());
 
     }
 }

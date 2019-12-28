@@ -1,34 +1,24 @@
 package route;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
 import simulation.Time;
 import transport.MeanOfTransport;
 
 @Data
-@AllArgsConstructor
 public class Edge {
     private Node fromNode;
     private Node toNode;
     private MeanOfTransport meanOfTransport;
-    private Time arrivalTime;
-    private Time departureTime;
+    private Time time;
 
-
-    public Edge(Node fromNode, Node toNode, Integer time) {
+    public Edge(Node fromNode, Node toNode, MeanOfTransport transport, Integer arrivalTime, Integer departureTime) {
         this.fromNode = fromNode;
         this.toNode = toNode;
-        this.arrivalTime = new Time();
-        this.departureTime = new Time();
+        this.meanOfTransport = transport;
+        this.time = new Time(arrivalTime, departureTime);
     }
 
-    public Integer driveTime(){
-        return departureTime.getTime() - arrivalTime.getTime();
+    public Integer getDriveTime() {
+        return time.getDepartureTime() - time.getArrivalTime();
     }
-
-    public Integer getTime(){
-        return driveTime();
-    }
-
-
 }

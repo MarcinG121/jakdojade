@@ -65,7 +65,7 @@ public class RouteGenerator {
         Integer time = 0;
         if(!result.isEmpty()) {
             for (Edge edge : result) {
-                time += edge.getTime();
+                time += edge.getDriveTime();
             }
         } else {
             time = Integer.MAX_VALUE;
