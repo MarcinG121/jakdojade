@@ -34,7 +34,6 @@ public class RouteGenerator {
     }
 
     public Result generateRoute(){
-
         Node current = from;
         int hops = 0;
         visited.add(current);
@@ -57,7 +56,6 @@ public class RouteGenerator {
                 }
             }
         }
-
         return new Result(result, calculateJourneyTime());
     }
 
@@ -89,7 +87,7 @@ public class RouteGenerator {
             if (!visited.contains(edge.getToNode())){
                 noVisited.add(edge);
                 Edge nextHops = findDirectlyConnected(edge.getToNode());
-                if (  nextHops != null){
+                if ( nextHops != null) {
                     return edge;
                 }
             }

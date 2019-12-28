@@ -39,12 +39,30 @@ public class RouteCorrector {
     }
 
     private boolean isGoodDirection(Node node) {
-        double A_1 = (this.target.getY() - this.from.getY()) / (this.target.getX() - this.from.getX());
-        double A_2 = -(1 / A_1);
-        double B_2 = this.from.getY() - A_2*from.getX();
+        double dist_x = this.target.getX() - this.from.getX();
+        double dist_y = this.target.getY() - this.from.getY();
 
-        return A_2*node.getX() + B_2 < node.getY();
+        if (dist_x == 0) {
+            if (this.from.getY() < this.target.getY()) {
+                return this.from.getY() <= node.getY();
+            } else {
+                return this.from.getY() >= node.getY();
+            }
+        } else {
+            if (dist_y == 0) {
+                if (this.from.getX() < this.target.getX()) {
+                    return this.from.getX() <= node.getX();
+                } else {
+                    return this.from.getX() >= node.getX();
+                }
+            } else {
+                double A_1 = dist_y / dist_x;
+                double A_2 = -(1 / A_1);
+                double B_2 = this.from.getY() - A_2 * this.from.getX();
 
+                return A_2 * node.getX() + B_2 < node.getY();
+            }
+        }
     }
 
     private List<List<Edge>> reduceRows(List<Node> targetNeighbors) {
