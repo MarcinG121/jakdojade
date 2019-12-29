@@ -81,10 +81,10 @@ public class MockNetworks {
         nodes.add(new Node(12,6,7));
         nodes.add(new Node(13,9,7));
         nodes.add(new Node(14,12,7));
-        nodes.add(new Node(15,15,3));
-        nodes.add(new Node(16,15,3));
-        nodes.add(new Node(17,15,3));
-        nodes.add(new Node(18,15,3));
+        nodes.add(new Node(15,3,3));
+        nodes.add(new Node(16,6,3));
+        nodes.add(new Node(17,9,3));
+        nodes.add(new Node(18,12,3));
         nodes.add(new Node(19,6,0));
         nodes.add(new Node(20,9,0));
 

@@ -1,10 +1,8 @@
 package simulation;
 
 import lombok.Data;
-import route.Network;
-import route.Node;
-import route.RouteCorrector;
-import route.RouteGenerator;
+import org.apache.commons.lang.SerializationUtils;
+import route.*;
 import simulation.result.BestResults;
 import simulation.result.Result;
 
@@ -20,12 +18,13 @@ public class SimulatedAnnealing {
     private double actualTemp;
     private double K_b;
     private String typeCooling;
+    private Integer startTime;
+    private Result currentRoute;
 
     private Node sourceNode;
     private Node destinationNode;
     private Network network;
     private BestResults bestResults;
-    private Result actualBestResult;
 
     public SimulatedAnnealing(double initTemp, double minTemp, double collingRate, int iterationsNum, double k_b,
                               String typeCooling, Node sourceNode, Node destinationNode, Network network)
@@ -45,21 +44,22 @@ public class SimulatedAnnealing {
     public BestResults solve() {
 
         RouteCorrector routeCorrector = new RouteCorrector(network, sourceNode, destinationNode);
-        RouteGenerator routeGenerator = new RouteGenerator(network, sourceNode, destinationNode);
-        Result firstRoute = routeGenerator.generateRoute();
-        Integer time = firstRoute.getCost();
+        RouteGenerator routeGenerator = new RouteGenerator(network, sourceNode, destinationNode, startTime);
+        currentRoute = generateNewRoute(routeCorrector, routeGenerator);
+        Integer time = currentRoute.getCost();
         Integer newTime;
 
         while (actualTemp > minTemp) {
 
-            Result newRoute = correctSolution(routeCorrector, routeGenerator);
-            newTime = newRoute.getCost();
+            currentRoute = correctSolution(routeGenerator, routeCorrector);
+            newTime = currentRoute.getCost();
 
             if (time > newTime) {
-                actualBestResult = newRoute;
+                Result newBest = (Result) SerializationUtils.clone(currentRoute);
+                bestResults.add(newBest);
             } else {
                 if (acceptanceProbability(time, newTime)) {
-                    actualBestResult = newRoute;
+                    currentRoute = generateNewRoute(routeCorrector,routeGenerator);
                 }
             }
             decreaseTemperature();
@@ -67,7 +67,25 @@ public class SimulatedAnnealing {
         return this.bestResults;
     }
 
-    private Result correctSolution(RouteCorrector routeCorrector, RouteGenerator routeGenerator) {
+    private Result correctSolution(RouteGenerator routeGenerator, RouteCorrector routeCorrector) {
+
+        int loopSize = network.getNetwork().size();
+        Result result = new Result();
+        for (int i=0; i < loopSize; i++) {
+            Network closedNeighbors = routeCorrector.findClosedNeighbors();
+            routeGenerator.changeNetwork(closedNeighbors);
+            Result nextRoute = routeGenerator.generateRoute();
+            if (!nextRoute.getResults().isEmpty()) {
+                Edge nextEdge = nextRoute.getResults().get(0);
+                result.addEdge(nextEdge);
+                routeGenerator.changeSourceNode(nextEdge.getToNode());
+                routeCorrector.changeSourceNode(nextEdge.getToNode());
+            }
+        }
+        return result;
+    }
+
+    private Result generateNewRoute(RouteCorrector routeCorrector, RouteGenerator routeGenerator) {
         Network closedNeighbors = routeCorrector.findClosedNeighbors();
         routeGenerator.changeNetwork(closedNeighbors);
         return routeGenerator.generateRoute();

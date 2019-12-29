@@ -3,9 +3,7 @@ package route;
 
 import simulation.result.Result;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class RouteGenerator {
 
@@ -14,11 +12,13 @@ public class RouteGenerator {
     private Network network;
     private Node from;
     private Node to;
+    private Integer startTime;
 
-    public RouteGenerator(Network network, Node from, Node to) {
+    public RouteGenerator(Network network, Node from, Node to, Integer startTime) {
         this.network = network;
         this.from = from;
         this.to = to;
+        this.startTime = startTime;
     }
 
     public void changeNetwork(Network network) {
@@ -39,9 +39,9 @@ public class RouteGenerator {
         visited.add(current);
 
         while (hops <= Math.sqrt(network.getNetwork().size())){
-            Edge next = findDirectlyConnected(current);
-            if ( next != null){
-                result.add(next);
+            List<Edge> next = findDirectlyConnected(current);
+            if ( next.size() > 0 ) {
+                chooseBetterConnection(next).ifPresent(e -> result.add(e));
                 return new Result(result, calculateJourneyTime());
             }
             else {
@@ -59,6 +59,10 @@ public class RouteGenerator {
         return new Result(result, calculateJourneyTime());
     }
 
+    private Optional<Edge> chooseBetterConnection(List<Edge> lines) {
+        return lines.stream().min(Comparator.comparingInt(Edge::getDriveTime));
+    }
+
     private Integer calculateJourneyTime() {
         Integer time = 0;
         if(!result.isEmpty()) {
@@ -71,13 +75,13 @@ public class RouteGenerator {
         return time;
     }
 
-
-    private Edge findDirectlyConnected(Node current){
+    private List<Edge> findDirectlyConnected(Node current){
         List<Edge> row = network.getRow(current.getId());
+        List<Edge> result = new ArrayList<>();
         for (Edge edge: row){
-            if (edge.getToNode().equals(to)) return edge;
+            if (edge.getToNode().equals(to)) result.add(edge);
         }
-        return null;
+        return result;
     }
 
     private Edge nextHops(Node current){
@@ -86,9 +90,11 @@ public class RouteGenerator {
         for (Edge edge: row){
             if (!visited.contains(edge.getToNode())){
                 noVisited.add(edge);
-                Edge nextHops = findDirectlyConnected(edge.getToNode());
-                if ( nextHops != null) {
-                    return edge;
+                List<Edge> nextHops = findDirectlyConnected(edge.getToNode());
+                if ( nextHops.size() > 0) {
+                    if(chooseBetterConnection(nextHops).isPresent()) {
+                        return chooseBetterConnection(nextHops).get();
+                    }
                 }
             }
         }
@@ -96,13 +102,11 @@ public class RouteGenerator {
         return noVisited.get(getRandomNumberInRange(0, noVisited.size()));
     }
 
-
-    private static int getRandomNumberInRange(Integer min, Integer max) {
+    public static int getRandomNumberInRange(Integer min, Integer max) {
         if (min >= max) {
             throw new IllegalArgumentException("max must be greater than min");
         }
         Random r = new Random();
         return r.nextInt((max - min) + 1) + min;
     }
-
 }

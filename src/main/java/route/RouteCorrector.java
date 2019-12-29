@@ -19,9 +19,17 @@ public class RouteCorrector {
     }
 
     public Network findClosedNeighbors(){
-        List<Node> neighborNodes = collectNeighborNodes();
-        reduceNetwork(neighborNodes);
+        this.targetNeighbors = collectNeighborNodes();
+        reduceNetwork();
         return this.network;
+    }
+
+    public void changeDestinationNode(Node target) {
+        this.target = target;
+    }
+
+    public void changeSourceNode(Node from) {
+        this.from = from;
     }
 
     private List<Node> collectNeighborNodes() {
@@ -30,11 +38,11 @@ public class RouteCorrector {
                 .collect(Collectors.toList());
     }
 
-    private void reduceNetwork(List<Node> targetNeighbors){
+    private void reduceNetwork(){
 
-        this.network.setNetwork(reduceRows(targetNeighbors));
+        this.network.setNetwork(reduceRows());
         this.network.setNetwork( this.network.getNetwork().stream()
-                                    .map(row -> reduceColumns(row, targetNeighbors))
+                                    .map(this::reduceColumns)
                                     .collect(Collectors.toList()) );
     }
 
@@ -65,13 +73,13 @@ public class RouteCorrector {
         }
     }
 
-    private List<List<Edge>> reduceRows(List<Node> targetNeighbors) {
+    private List<List<Edge>> reduceRows() {
         return this.network.getNetwork().stream()
                 .filter(row -> targetNeighbors.contains(row.get(FIRST_ELEM_IN_ROW).getFromNode()))
                 .collect(Collectors.toList());
     }
 
-    private List<Edge> reduceColumns(List<Edge> row, List<Node> targetNeighbors) {
+    private List<Edge> reduceColumns(List<Edge> row) {
         return row.stream()
                 .filter(col -> targetNeighbors.contains(col.getToNode()))
                 .collect(Collectors.toList());

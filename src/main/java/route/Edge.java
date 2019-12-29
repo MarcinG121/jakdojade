@@ -21,4 +21,8 @@ public class Edge {
     public Integer getDriveTime() {
         return time.getDepartureTime() - time.getArrivalTime();
     }
+
+    public Integer getDriveTimeWithWaiting(Integer startTime) {
+        return getDriveTime() + startTime;
+    }
 }
