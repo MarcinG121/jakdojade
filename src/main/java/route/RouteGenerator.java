@@ -4,6 +4,7 @@ package route;
 import simulation.result.Result;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class RouteGenerator {
 
@@ -79,7 +80,36 @@ public class RouteGenerator {
         List<Edge> row = network.getRow(current.getId());
         List<Edge> result = new ArrayList<>();
         for (Edge edge: row){
-            if (edge.getToNode().equals(to)) result.add(edge);
+            if (edge.getToNode().equals(to)) {
+                result.add(edge);
+            }
+        }
+        return chooseClosedArrivalTime(result);
+    }
+
+
+    private List<Edge> chooseClosedArrivalTime(List<Edge> allArrival) {
+
+        int min = 1440;
+        List<Edge> result = new ArrayList<>();
+        if (allArrival.size() > 0){
+            Integer previousFromNode = allArrival.get(0).getFromNode().getId();
+            for (Edge edge : allArrival) {
+                Integer nowFromNode = edge.getFromNode().getId();
+                if (previousFromNode.equals(nowFromNode)) {
+                    if (edge.getTime().getArrivalTime() > startTime) {
+                        int next = edge.getTime().getArrivalTime() - startTime;
+                        if (min > next) {
+                            result.add(edge);
+                            min = next;
+                        }
+                    }
+                }
+                else {
+                    min = 0;
+                }
+                previousFromNode = nowFromNode;
+            }
         }
         return result;
     }

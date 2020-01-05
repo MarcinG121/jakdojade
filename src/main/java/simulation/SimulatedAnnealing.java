@@ -27,7 +27,7 @@ public class SimulatedAnnealing {
     private BestResults bestResults;
 
     public SimulatedAnnealing(double initTemp, double minTemp, double collingRate, int iterationsNum, double k_b,
-                              String typeCooling, Node sourceNode, Node destinationNode, Network network)
+                              String typeCooling, Integer startTime, Node sourceNode, Node destinationNode, Network network)
     {
         this.initTemp = initTemp;
         this.actualTemp = initTemp;
@@ -36,6 +36,7 @@ public class SimulatedAnnealing {
         this.iterationsNum = iterationsNum;
         this.K_b = k_b;
         this.typeCooling = typeCooling;
+        this.startTime = startTime;
         this.sourceNode = sourceNode;
         this.destinationNode = destinationNode;
         this.network = network;

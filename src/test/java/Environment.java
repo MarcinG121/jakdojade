@@ -21,12 +21,13 @@ public class Environment {
         int iterationsNum = 10;
         double K_b = 1.380649 * 1E-23;
         String typeCooling = "Linear";
+        Integer startTime = 36;
         Network network = MockNetworks.getNetworkTwenty();
-        Node sourceNode = network.getNetwork().get(2).get(1).getToNode();
-        Node destinationNode = network.getNetwork().get(14).get(1).getToNode();
+        Node sourceNode = network.getRow(2).get(0).getFromNode();
+        Node destinationNode = network.getRow(16).get(0).getFromNode();
 
         SimulatedAnnealing annealing = new SimulatedAnnealing(initTemp, minTemp, collingRate, iterationsNum, K_b,
-                typeCooling, sourceNode,  destinationNode, network);
+                typeCooling, startTime, sourceNode,  destinationNode, network);
         System.out.println(annealing.solve());
 
     }
