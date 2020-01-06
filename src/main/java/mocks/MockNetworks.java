@@ -604,4 +604,97 @@ public class MockNetworks {
         return new Network(network);
     }
 
+    public static Network getNetworkNine() {
+        // STEP 1. creating 9 nodes
+        List<Node> nodes = new ArrayList<Node>();
+        nodes.add(new Node(1, 6, 6));
+        nodes.add(new Node(2, 3, 5));
+        nodes.add(new Node(3, 0, 4));
+        nodes.add(new Node(4, 5, 4));
+        nodes.add(new Node(5, 7, 4));
+        nodes.add(new Node(6, 1, 2));
+        nodes.add(new Node(7, 5, 2));
+        nodes.add(new Node(8, 3, 1));
+        nodes.add(new Node(9, 5, 0));
+
+        // STEP 2. creating 9 rows for network
+        List<Edge> row1 = new ArrayList<Edge>();
+        List<Edge> row2 = new ArrayList<Edge>();
+        List<Edge> row3 = new ArrayList<Edge>();
+        List<Edge> row4 = new ArrayList<Edge>();
+        List<Edge> row5 = new ArrayList<Edge>();
+        List<Edge> row6 = new ArrayList<Edge>();
+        List<Edge> row7 = new ArrayList<Edge>();
+        List<Edge> row8 = new ArrayList<Edge>();
+        List<Edge> row9 = new ArrayList<Edge>();
+
+        // STEP 3. creating edges and adding them into rows
+        // --- PARAMETRY LINII ------------------------------------------
+        MeanOfTransport tram = new Tram();
+        MeanOfTransport bus = new Bus();
+        Integer offset1;    // offset1 - czas wystartowania pierwszego kursu
+        Integer offset2;    // offset1 + offset2 - czas wystartowania pierwszego kursu w kierunku przeciwnym
+        Integer interval;   // czas miedzy kursami
+        Integer last_one;   // last_one (i last_one + offset2) - czas, po którym nie startują kursy
+        // --- uproszczenie - parametry wspolne dla kazdej linii ---
+        offset1 = 5*60;
+        offset2 = 5;
+        interval = 10;
+        last_one = 22*60;
+        // Line 1:      1 <-> 2
+        for(Integer offset = offset1; offset < last_one; offset+=interval){
+            row1.add(new Edge(nodes.get(0), nodes.get(1), bus, offset, offset + 4 ));
+            row2.add(new Edge(nodes.get(1), nodes.get(0), bus, offset + offset2, offset + offset2 + 4 ));
+        }
+        // Line 2:      2 <-> 6
+        for(Integer offset = offset1; offset < last_one; offset+=interval){
+            row2.add(new Edge(nodes.get(1), nodes.get(5), bus, offset, offset + 5 ));
+            row6.add(new Edge(nodes.get(5), nodes.get(1), bus, offset + offset2, offset + offset2 + 5 ));
+        }
+        // Line 3:      2 <-> 7
+        for(Integer offset = offset1; offset < last_one; offset+=interval){
+            row2.add(new Edge(nodes.get(1), nodes.get(6), bus, offset, offset + 5 ));
+            row7.add(new Edge(nodes.get(6), nodes.get(1), bus, offset + offset2, offset + offset2 + 5 ));
+        }
+        // Line 4:      3 <-> 6
+        for(Integer offset = offset1; offset < last_one; offset+=interval){
+            row3.add(new Edge(nodes.get(2), nodes.get(5), tram, offset, offset + 3 ));
+            row6.add(new Edge(nodes.get(5), nodes.get(2), tram, offset + offset2, offset + offset2 + 3 ));
+        }
+        // Line 5:      4 <-> 5
+        for(Integer offset = offset1; offset < last_one; offset+=interval){
+            row4.add(new Edge(nodes.get(3), nodes.get(4), bus, offset, offset + 2 ));
+            row5.add(new Edge(nodes.get(4), nodes.get(3), bus, offset + offset2, offset + offset2 + 2 ));
+        }
+        // Line 6:      4 <-> 7
+        for(Integer offset = offset1; offset < last_one; offset+=interval){
+            row4.add(new Edge(nodes.get(3), nodes.get(6), bus, offset, offset + 2 ));
+            row7.add(new Edge(nodes.get(6), nodes.get(3), bus, offset + offset2, offset + offset2 + 2 ));
+        }
+        // Line 7:      5 <-> 7
+        for(Integer offset = offset1; offset < last_one; offset+=interval){
+            row5.add(new Edge(nodes.get(4), nodes.get(6), bus, offset, offset + 4 ));
+            row7.add(new Edge(nodes.get(6), nodes.get(4), bus, offset + offset2, offset + offset2 + 4 ));
+        }
+        // Line 8:      6 <-> 8
+        for(Integer offset = offset1; offset < last_one; offset+=interval){
+            row6.add(new Edge(nodes.get(5), nodes.get(7), tram, offset, offset + 3 ));
+            row8.add(new Edge(nodes.get(7), nodes.get(5), tram, offset + offset2, offset + offset2 + 3 ));
+        }
+        // Line 9:      7 <-> 8
+        for(Integer offset = offset1; offset < last_one; offset+=interval){
+            row7.add(new Edge(nodes.get(6), nodes.get(7), bus, offset, offset + 3 ));
+            row8.add(new Edge(nodes.get(7), nodes.get(6), bus, offset + offset2, offset + offset2 + 3 ));
+        }
+        // Line 10:     8 <-> 9
+        for(Integer offset = offset1; offset < last_one; offset+=interval){
+            row8.add(new Edge(nodes.get(7), nodes.get(8), tram, offset, offset + 3 ));
+            row9.add(new Edge(nodes.get(8), nodes.get(7), tram, offset + offset2, offset + offset2 + 3 ));
+        }
+
+        // STEP 4. creating network
+        List<List<Edge>> network = Arrays.asList(row1, row2, row3, row4, row5, row6, row7, row8, row9);
+        return new Network(network);
+    }
+    
 }
