@@ -3,6 +3,7 @@ package simulation;
 import lombok.Data;
 import org.apache.commons.lang.SerializationUtils;
 import route.*;
+import route.errors.DestinationReachException;
 import simulation.result.BestResults;
 import simulation.result.Result;
 
@@ -56,8 +57,7 @@ public class SimulatedAnnealing {
             newTime = currentRoute.getCost();
 
             if (time > newTime) {
-                Result newBest = (Result) SerializationUtils.clone(currentRoute);
-                bestResults.add(newBest);
+                bestResults.add((Result) SerializationUtils.clone(currentRoute));
             } else {
                 if (acceptanceProbability(time, newTime)) {
                     currentRoute = generateNewRoute(routeCorrector,routeGenerator);
@@ -75,7 +75,12 @@ public class SimulatedAnnealing {
         for (int i=0; i < loopSize; i++) {
             Network closedNeighbors = routeCorrector.findClosedNeighbors();
             routeGenerator.changeNetwork(closedNeighbors);
-            Result nextRoute = routeGenerator.generateRoute();
+            Result nextRoute = null;
+            try {
+                nextRoute = routeGenerator.generateRoute();
+            } catch (DestinationReachException e) {
+                return result;
+            }
             if (!nextRoute.getResults().isEmpty()) {
                 Edge nextEdge = nextRoute.getResults().get(0);
                 result.addEdge(nextEdge);
@@ -89,7 +94,11 @@ public class SimulatedAnnealing {
     private Result generateNewRoute(RouteCorrector routeCorrector, RouteGenerator routeGenerator) {
         Network closedNeighbors = routeCorrector.findClosedNeighbors();
         routeGenerator.changeNetwork(closedNeighbors);
-        return routeGenerator.generateRoute();
+        try {
+            return routeGenerator.generateRoute();
+        } catch (DestinationReachException e) {
+            return new Result();
+        }
     }
 
     private boolean acceptanceProbability(Integer time, Integer newTime) {

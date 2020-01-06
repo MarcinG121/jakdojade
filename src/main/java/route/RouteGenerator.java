@@ -1,6 +1,7 @@
 package route;
 
 
+import route.errors.DestinationReachException;
 import simulation.result.Result;
 
 import java.util.*;
@@ -8,8 +9,8 @@ import java.util.stream.Collectors;
 
 public class RouteGenerator {
 
-    private List<Node> visited = new ArrayList<>();
-    private List<Edge> result = new ArrayList<>();
+    private List<Node> visited;
+    private List<Edge> result;
     private Network network;
     private Node from;
     private Node to;
@@ -24,6 +25,8 @@ public class RouteGenerator {
 
     public void changeNetwork(Network network) {
         this.network = network;
+        this.result = new ArrayList<>();
+        this.visited = new ArrayList<>();
     }
 
     public void changeDestinationNode(Node to){
@@ -34,15 +37,24 @@ public class RouteGenerator {
         this.from = from;
     }
 
-    public Result generateRoute(){
+    public Result generateRoute() throws DestinationReachException {
+        Integer time = startTime;
         Node current = from;
         int hops = 0;
         visited.add(current);
 
+        if (this.from.equals(this.to)){
+            throw new DestinationReachException("Destination already reach");
+        }
+
         while (hops <= Math.sqrt(network.getNetwork().size())){
             List<Edge> next = findDirectlyConnected(current);
             if ( next.size() > 0 ) {
-                chooseBetterConnection(next).ifPresent(e -> result.add(e));
+                Optional<Edge> bestNext = chooseBetterConnection(next);
+                if (bestNext.isPresent()) {
+                    result.add(bestNext.get());
+                    time = time + bestNext.get().getDriveTime();
+                }
                 return new Result(result, calculateJourneyTime());
             }
             else {
@@ -54,6 +66,7 @@ public class RouteGenerator {
                     hops += 1;
                     visited.add(current);
                     result.add(nextHop);
+                    time = time + nextHop.getDriveTime();
                 }
             }
         }
