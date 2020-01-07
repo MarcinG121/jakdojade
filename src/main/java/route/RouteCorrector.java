@@ -1,6 +1,7 @@
 package route;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class RouteCorrector {
@@ -18,8 +19,11 @@ public class RouteCorrector {
         this.target = target;
     }
 
-    public Network findClosedNeighbors(){
-        this.targetNeighbors = collectNeighborNodes();
+    public Network findCloseNeighbors(Edge visited) {
+        targetNeighbors = collectNeighborNodes();
+        if (!Objects.isNull(visited)) {
+            targetNeighbors.remove(visited.getFromNode());
+        }
         reduceNetwork();
         return this.network;
     }
@@ -43,6 +47,9 @@ public class RouteCorrector {
         this.network.setNetwork(reduceRows());
         this.network.setNetwork( this.network.getNetwork().stream()
                                     .map(this::reduceColumns)
+                                    .collect(Collectors.toList()) );
+        this.network.setNetwork( this.network.getNetwork().stream()
+                                    .filter(e -> e.size() > 0)
                                     .collect(Collectors.toList()) );
     }
 
@@ -68,7 +75,7 @@ public class RouteCorrector {
                 double A_2 = -(1 / A_1);
                 double B_2 = this.from.getY() - A_2 * this.from.getX();
 
-                return A_2 * node.getX() + B_2 >= node.getY();
+                return A_2 * node.getX() + B_2 <= node.getY();
             }
         }
     }

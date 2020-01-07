@@ -1,12 +1,13 @@
 package simulation;
 
 import lombok.Data;
-import org.apache.commons.lang.SerializationUtils;
 import route.*;
 import route.errors.DestinationReachException;
+import route.errors.NegativeTimeValueException;
 import simulation.result.BestResults;
 import simulation.result.Result;
 
+import java.util.ArrayList;
 import java.util.Random;
 
 @Data
@@ -41,6 +42,7 @@ public class SimulatedAnnealing {
         this.sourceNode = sourceNode;
         this.destinationNode = destinationNode;
         this.network = network;
+        this.bestResults = new BestResults();
     }
 
     public BestResults solve() {
@@ -53,36 +55,39 @@ public class SimulatedAnnealing {
 
         while (actualTemp > minTemp) {
 
-            currentRoute = correctSolution(routeGenerator, routeCorrector);
+            currentRoute = correctSolution(routeGenerator, routeCorrector, 3);
             newTime = currentRoute.getCost();
 
             if (time > newTime) {
-                bestResults.add((Result) SerializationUtils.clone(currentRoute));
+                bestResults.add(currentRoute);
             } else {
                 if (acceptanceProbability(time, newTime)) {
                     currentRoute = generateNewRoute(routeCorrector,routeGenerator);
                 }
             }
             decreaseTemperature();
+            if (currentRoute.getResults().isEmpty()) {
+                return this.bestResults;
+            }
         }
         return this.bestResults;
     }
 
-    private Result correctSolution(RouteGenerator routeGenerator, RouteCorrector routeCorrector) {
+    private Result correctSolution(RouteGenerator routeGenerator, RouteCorrector routeCorrector, int loopSize) {
 
-        int loopSize = network.getNetwork().size();
         Result result = new Result();
+        Edge nextEdge = null;
         for (int i=0; i < loopSize; i++) {
-            Network closedNeighbors = routeCorrector.findClosedNeighbors();
+            Network closedNeighbors = routeCorrector.findCloseNeighbors(nextEdge);
             routeGenerator.changeNetwork(closedNeighbors);
             Result nextRoute = null;
             try {
                 nextRoute = routeGenerator.generateRoute();
-            } catch (DestinationReachException e) {
+            } catch (DestinationReachException | NegativeTimeValueException e) {
                 return result;
             }
             if (!nextRoute.getResults().isEmpty()) {
-                Edge nextEdge = nextRoute.getResults().get(0);
+                nextEdge = nextRoute.getResults().get(0);
                 result.addEdge(nextEdge);
                 routeGenerator.changeSourceNode(nextEdge.getToNode());
                 routeCorrector.changeSourceNode(nextEdge.getToNode());
@@ -92,13 +97,14 @@ public class SimulatedAnnealing {
     }
 
     private Result generateNewRoute(RouteCorrector routeCorrector, RouteGenerator routeGenerator) {
-        Network closedNeighbors = routeCorrector.findClosedNeighbors();
+        Network closedNeighbors = routeCorrector.findCloseNeighbors(null);
         routeGenerator.changeNetwork(closedNeighbors);
         try {
             return routeGenerator.generateRoute();
-        } catch (DestinationReachException e) {
+        } catch (DestinationReachException | NegativeTimeValueException e) {
             return new Result();
         }
+
     }
 
     private boolean acceptanceProbability(Integer time, Integer newTime) {
