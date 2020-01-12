@@ -3,6 +3,7 @@ package route;
 import lombok.Data;
 import simulation.Time;
 import transport.MeanOfTransport;
+import transport.implementation.Foot;
 
 import java.util.Objects;
 
@@ -20,6 +21,15 @@ public class Edge {
         this.time = new Time(arrivalTime, departureTime);
     }
 
+    public Edge(Node fromNode, Node toNode, MeanOfTransport transport) {
+        if (!transport.getClass().equals(Foot.class)) {
+            throw new IllegalArgumentException();
+        }
+        this.fromNode = fromNode;
+        this.toNode = toNode;
+        this.meanOfTransport = transport;
+    }
+
     public Edge(Edge edge) {
         if (!Objects.isNull(edge)) {
             this.fromNode = edge.getFromNode();
@@ -35,5 +45,10 @@ public class Edge {
 
     public Integer getDriveTimeWithWaiting(Integer startTime) {
         return getDriveTime() + startTime;
+    }
+
+    @Override
+    public String toString() {
+        return fromNode.getId().toString();
     }
 }

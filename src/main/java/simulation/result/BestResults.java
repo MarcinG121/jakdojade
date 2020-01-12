@@ -16,4 +16,14 @@ public class BestResults {
         Optional<Result> max = this.results.stream().max(Comparator.comparing(Result::getCost));
         return max.orElseThrow(NoSuchElementException::new);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ROZWIAZANIE : \n");
+        for (Result result : this.results) {
+            builder.append(String.format("%s \n", result.toString()));
+        }
+        return builder.toString();
+    }
 }

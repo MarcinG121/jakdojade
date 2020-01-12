@@ -2,6 +2,7 @@ package route;
 
 
 import route.errors.DestinationReachException;
+import route.errors.DestinationUnreachableException;
 import route.errors.NegativeTimeValueException;
 import simulation.result.Result;
 
@@ -26,6 +27,8 @@ public class RouteGenerator {
         this.to = to;
         this.startTime = startTime;
         this.time = startTime;
+        this.result = new ArrayList<>();
+        this.visited = new ArrayList<>();
     }
 
     public void changeNetwork(Network network) {
@@ -42,7 +45,13 @@ public class RouteGenerator {
         this.from = from;
     }
 
-    public Result generateRoute() throws DestinationReachException, NegativeTimeValueException {
+    public void changeStartTime(int actual) {
+        this.startTime = actual;
+    }
+
+    public Result generateRoute()
+            throws DestinationReachException, NegativeTimeValueException, DestinationUnreachableException
+    {
         this.time = startTime;
         Node current = from;
         int hops = 0;
@@ -53,8 +62,7 @@ public class RouteGenerator {
             throw new DestinationReachException("Destination already reach");
         }
         if (this.network.getNetwork().isEmpty()) {
-            // TODO niech zapierdala z buta brakło możliwości
-            return new Result();
+            throw new DestinationUnreachableException("Can not reach destination node");
         }
 
         while (hops <= Math.sqrt(network.getNetwork().size())) {
@@ -98,19 +106,16 @@ public class RouteGenerator {
     }
 
     private Integer calculateJourneyTime() {
-        Integer time = 0;
-        if(!result.isEmpty()) {
-            for (Edge edge : result) {
-                time += edge.getDriveTime();
-            }
-        } else {
-            time = Integer.MAX_VALUE;
-        }
-        return time;
+        return this.time - this.startTime;
     }
 
     private List<Edge> findDirectlyConnected(Node current){
-        List<Edge> row = chooseClosedArrivalTime(network.getRow(current.getId()));
+        List<Edge> row = null;
+        try {
+            row = chooseClosedArrivalTime(network.getRow(current.getId()));
+        } catch (NoSuchElementException e){
+            return new ArrayList<>();
+        }
         List<Edge> result = new ArrayList<>();
         for (Edge edge: row){
             if (edge.getToNode().equals(to)) {
@@ -141,6 +146,9 @@ public class RouteGenerator {
                 }
                 else {
                     min = MAX_TIME;
+                    if (bestEdge == null){
+                        continue;
+                    }
                     result.add(new Edge(bestEdge));
                 }
                 previousFromNode = nowFromNode;
@@ -151,7 +159,12 @@ public class RouteGenerator {
     }
 
     private Edge nextHops(Node current){
-        List<Edge> row = chooseClosedArrivalTime(network.getRow(current.getId()));
+        List<Edge> row = null;
+        try {
+            row = chooseClosedArrivalTime(network.getRow(current.getId()));;
+        } catch (NoSuchElementException e){
+            return null;
+        }
         List<Edge> noVisited = new ArrayList<Edge>();
         for (Edge edge: row){
             if (!visited.contains(edge.getToNode())){

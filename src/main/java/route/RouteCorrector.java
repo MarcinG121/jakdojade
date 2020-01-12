@@ -74,8 +74,12 @@ public class RouteCorrector {
                 double A_1 = dist_y / dist_x;
                 double A_2 = -(1 / A_1);
                 double B_2 = this.from.getY() - A_2 * this.from.getX();
-
-                return A_2 * node.getX() + B_2 <= node.getY();
+                if (A_2 * this.target.getX() + B_2 >= this.target.getY()){
+                    return A_2 * node.getX() + B_2 >= node.getY();
+                }
+                else {
+                    return A_2 * node.getX() + B_2 <= node.getY();
+                }
             }
         }
     }
