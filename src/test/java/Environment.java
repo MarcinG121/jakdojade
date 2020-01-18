@@ -3,6 +3,7 @@ import org.junit.jupiter.api.Test;
 import route.Network;
 import route.Node;
 import route.RouteCorrector;
+import route.errors.DestinationUnreachableException;
 import route.errors.NegativeTimeValueException;
 import simulation.SimulatedAnnealing;
 
@@ -35,7 +36,7 @@ public class Environment {
     }
 
     @Test
-    public void testDirection(){
+    public void testDirection() throws DestinationUnreachableException {
 
         Network network = MockNetworks.getNetworkNine();
         Node sourceNode = network.getRow(2).get(0).getFromNode();

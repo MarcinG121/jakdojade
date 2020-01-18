@@ -42,6 +42,9 @@ public class RouteGenerator {
     }
 
     public void changeSourceNode(Node from){
+        if (from == null) {
+            System.out.println("here");
+        }
         this.from = from;
     }
 

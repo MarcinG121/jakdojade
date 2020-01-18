@@ -7,6 +7,7 @@ import route.errors.DestinationUnreachableException;
 import route.errors.NegativeTimeValueException;
 import simulation.result.BestResults;
 import simulation.result.Result;
+import transport.implementation.Foot;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -56,10 +57,11 @@ public class SimulatedAnnealing {
 
 
         while (actualTemp > minTemp) {
-
-            currentRoute = correctSolution(2,25);
+            int i = generateStartRepairing();
+            int j = generateLoopSize();
+            currentRoute = correctSolution(i,j);
             newTime = currentRoute.getCost();
-
+            System.out.println(currentRoute);
             if (time > newTime) {
                 bestResults.add(currentRoute);
                 time = newTime;
@@ -85,30 +87,30 @@ public class SimulatedAnnealing {
         int actualTime = this.startTime;
         Edge nextEdge = null;
         int count = 0;
-        Node startNode = null;
 
         if (startRepair > this.currentRoute.getResults().size()) {
             return new Result().reachTargetOnFoot(this.destinationNode, this.sourceNode);
         }
 
         for (Edge edge : currentRoute.getResults()) {
-            if (count > startRepair) {
-                startNode = edge.getFromNode();
-                break;
-            }
+            if (count > startRepair) break;
+            if (edge.getMeanOfTransport().getClass().equals(Foot.class)) break;
+
             int cost = edge.getDriveTime() + (edge.getTime().getArrivalTime() - actualTime);
             actualTime += cost;
             result.addEdge(edge, cost);
             count += 1;
         }
-        routeGenerator.changeSourceNode(startNode);
-        routeCorrector.changeSourceNode(startNode);
+        if (!result.getResults().isEmpty()){
+            routeGenerator.changeSourceNode(result.getResults().get(result.getResults().size()-1).getToNode());
+            routeCorrector.changeSourceNode(result.getResults().get(result.getResults().size()-1).getToNode());
+        }
 
         for (int i=0; i < loopSize; i++) {
-            Network closedNeighbors = routeCorrector.findCloseNeighbors(nextEdge);
-            routeGenerator.changeNetwork(closedNeighbors);
             Result nextRoute = null;
             try {
+                Network closedNeighbors = routeCorrector.findCloseNeighbors(nextEdge);
+                routeGenerator.changeNetwork(closedNeighbors);
                 nextRoute = routeGenerator.generateRoute();
             } catch (DestinationReachException e) {
                 return result;
@@ -126,6 +128,20 @@ public class SimulatedAnnealing {
             }
         }
         return result.reachTargetOnFoot(this.destinationNode, this.sourceNode);
+    }
+
+    private int generateStartRepairing() {
+        int size = this.network.getNetwork().size()/10;
+        int min = 1;
+        if (size <= min) return min;
+        return getRandomNumberInRange(min, size);
+    }
+
+    private int generateLoopSize() {
+        int size = this.network.getNetwork().size();
+        int min = 1;
+        if (size <= min) return min;
+        return getRandomNumberInRange(min, size);
     }
 
     private Result generateNewRoute() {
@@ -157,5 +173,13 @@ public class SimulatedAnnealing {
                         ((this.initTemp - this.minTemp) / (this.iterationsNum * this.minTemp * this.actualTemp));
                 break;
         }
+    }
+
+        private static int getRandomNumberInRange(int min, int max) {
+        if (min >= max) {
+            throw new IllegalArgumentException("max must be greater than min");
+        }
+        Random r = new Random();
+        return r.nextInt((max - min) + 1) + min;
     }
 }
