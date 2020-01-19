@@ -75,7 +75,9 @@ public class SimulatedAnnealing {
             } else {
                 if (acceptanceProbability(time, newTime)) {
                     currentRoute = generateNewRoute();
-                    changeFirstSol++;
+                    i=0;
+                    j=0;
+                    stringBuilder.append("|");
                 }
             }
 
@@ -101,7 +103,7 @@ public class SimulatedAnnealing {
         int count = 0;
 
         if (startRepair > this.currentRoute.getResults().size()) {
-            return new Result().reachTargetOnFoot(this.destinationNode, this.sourceNode);
+            return this.currentRoute.reachTargetOnFoot(this.destinationNode, this.sourceNode);
         }
 
         for (Edge edge : currentRoute.getResults()) {
@@ -116,6 +118,7 @@ public class SimulatedAnnealing {
         if (!result.getResults().isEmpty()){
             routeGenerator.changeSourceNode(result.getResults().get(result.getResults().size()-1).getToNode());
             routeCorrector.changeSourceNode(result.getResults().get(result.getResults().size()-1).getToNode());
+            routeGenerator.changeStartTime(actualTime);
         }
 
         for (int i=0; i < loopSize; i++) {
@@ -176,6 +179,8 @@ public class SimulatedAnnealing {
 
     private boolean acceptanceProbability(Integer time, Integer newTime) {
         Random r = new Random();
+
+        if (time.equals(newTime)) return false;
 
         return r.nextInt() < Math.exp((time - newTime) / (actualTemp * K_b));
     }

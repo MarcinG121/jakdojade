@@ -56,7 +56,11 @@ public class Result implements Serializable {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         for (Edge edge : this.results) {
-            builder.append(String.format("%s->", edge.toString()));
+            if (edge.getMeanOfTransport().getClass().equals(Foot.class)) {
+                builder.append("Foot->");
+                break;
+            }
+            builder.append(String.format("[%s,%d]->", edge.toString(), edge.getTime().getArrivalTime()));
         }
         builder.append(results.get(results.size()-1).getToNode().getId());
         builder.append(String.format("||%d", this.cost));
