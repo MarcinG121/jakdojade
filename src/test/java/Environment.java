@@ -23,11 +23,11 @@ public class Environment {
         double collingRate = 0.9;
         int iterationsNum = 1000;
         double K_b = 1.380649 * 1E-23;
-        String typeCooling = "Logarytmical";
+        String typeCooling = "Linear";
         Integer startTime = 600;
         Network network = MockNetworks.getNetworkFifty();
-        Node sourceNode = network.getRow(46).get(0).getFromNode();
-        Node destinationNode = network.getRow(2).get(0).getFromNode();
+        Node sourceNode = network.getRow(43).get(0).getFromNode();
+        Node destinationNode = network.getRow(1).get(0).getFromNode();
 
         SimulatedAnnealing annealing = new SimulatedAnnealing(initTemp, minTemp, collingRate, iterationsNum, K_b,
                 typeCooling, startTime, sourceNode,  destinationNode, network);

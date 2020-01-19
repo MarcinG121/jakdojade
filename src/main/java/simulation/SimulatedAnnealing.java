@@ -58,8 +58,10 @@ public class SimulatedAnnealing {
 
         stringBuilder.append("[");
         while (actualTemp > minTemp) {
-            int i = generateStartRepairing();
-            int j = generateLoopSize();
+            int i = 0;
+            i = generateStartRepairing(i);
+            int j = 0;
+            j = generateLoopSize(j);
             currentRoute = correctSolution(i,j);
             newTime = currentRoute.getCost();
 
@@ -136,18 +138,26 @@ public class SimulatedAnnealing {
         return result.reachTargetOnFoot(this.destinationNode, this.sourceNode);
     }
 
-    private int generateStartRepairing() {
-        int size = this.network.getNetwork().size()/10;
-        int min = 1;
-        if (size <= min) return min;
-        return getRandomNumberInRange(min, size);
+    private int generateStartRepairing(int prev) {
+        int problemSize = this.network.getNetwork().size()/2;
+        int piece = (int) this.initTemp/problemSize;
+
+        int actual = (int) (this.initTemp - this.actualTemp);
+
+        if (actual > piece*prev) prev++;
+
+        return prev;
     }
 
-    private int generateLoopSize() {
-        int size = this.network.getNetwork().size();
-        int min = 1;
-        if (size <= min) return min;
-        return getRandomNumberInRange(min, size);
+    private int generateLoopSize(int prev) {
+        int problemSize = this.network.getNetwork().size();
+        int piece = (int) this.initTemp/problemSize;
+
+        int actual = (int) (this.initTemp - this.actualTemp);
+
+        if (actual > piece*prev) prev++;
+
+        return prev;
     }
 
     private Result generateNewRoute() {
