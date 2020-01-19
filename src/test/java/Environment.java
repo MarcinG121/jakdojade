@@ -21,7 +21,7 @@ public class Environment {
         double initTemp = 1000;
         double minTemp = 10;
         double collingRate = 0.9;
-        int iterationsNum = 100;
+        int iterationsNum = 1000;
         double K_b = 1.380649 * 1E-23;
         String typeCooling = "Linear";
         Integer startTime = 600;
