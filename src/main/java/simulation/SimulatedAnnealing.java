@@ -56,12 +56,13 @@ public class SimulatedAnnealing {
         Integer newTime;
         StringBuilder stringBuilder = new StringBuilder();
         int changeFirstSol = 0;
+        int i = 0;
+        int j = 0;
 
         stringBuilder.append("[");
         while (actualTemp > minTemp) {
-            int i = 0;
+
             i = generateStartRepairing(i);
-            int j = 0;
             j = generateLoopSize(j);
             currentRoute = correctSolution(i,j);
             newTime = currentRoute.getCost();

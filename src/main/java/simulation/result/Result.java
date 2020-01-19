@@ -46,7 +46,7 @@ public class Result implements Serializable {
             this.results.add(lastEdge);
             double path = (last.getX()-target.getX())*(last.getX()-target.getX()) +
                     (last.getY()-target.getY())*(last.getY()-target.getY());
-            this.cost = this.cost +  ((int) path )/2;
+            this.cost = this.cost +  ((int) path )*2;
             return this;
         }
         return this;
