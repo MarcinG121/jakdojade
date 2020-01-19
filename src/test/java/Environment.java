@@ -26,7 +26,7 @@ public class Environment {
         String typeCooling = "Linear";
         Integer startTime = 600;
         Network network = MockNetworks.getNetworkFifty();
-        Node sourceNode = network.getRow(43).get(0).getFromNode();
+        Node sourceNode = network.getRow(41).get(0).getFromNode();
         Node destinationNode = network.getRow(1).get(0).getFromNode();
 
         SimulatedAnnealing annealing = new SimulatedAnnealing(initTemp, minTemp, collingRate, iterationsNum, K_b,

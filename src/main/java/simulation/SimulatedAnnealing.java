@@ -55,6 +55,7 @@ public class SimulatedAnnealing {
         Integer time = currentRoute.getCost();
         Integer newTime;
         StringBuilder stringBuilder = new StringBuilder();
+        int changeFirstSol = 0;
 
         stringBuilder.append("[");
         while (actualTemp > minTemp) {
@@ -73,6 +74,7 @@ public class SimulatedAnnealing {
             } else {
                 if (acceptanceProbability(time, newTime)) {
                     currentRoute = generateNewRoute();
+                    changeFirstSol++;
                 }
             }
 
@@ -84,6 +86,7 @@ public class SimulatedAnnealing {
         stringBuilder.setLength(stringBuilder.length()-2);
         stringBuilder.append("]");
         System.out.println(stringBuilder.toString());
+        System.out.println(String.format("Ilość zmiany otoczenia: %d", changeFirstSol));
         return this.bestResults;
     }
 
@@ -191,11 +194,4 @@ public class SimulatedAnnealing {
         }
     }
 
-        private static int getRandomNumberInRange(int min, int max) {
-        if (min >= max) {
-            throw new IllegalArgumentException("max must be greater than min");
-        }
-        Random r = new Random();
-        return r.nextInt((max - min) + 1) + min;
-    }
 }
