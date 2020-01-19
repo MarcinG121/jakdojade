@@ -1,6 +1,7 @@
 package route;
 
 import route.errors.DestinationUnreachableException;
+import simulation.result.Result;
 
 import java.util.List;
 import java.util.Objects;
@@ -21,11 +22,12 @@ public class RouteCorrector {
         this.target = target;
     }
 
-    public Network findCloseNeighbors(Edge visited) throws DestinationUnreachableException{
-        targetNeighbors = collectNeighborNodes();
-        if (!Objects.isNull(visited)) {
-            targetNeighbors.remove(visited.getFromNode());
-        }
+    public Network findCloseNeighbors(Result visited) {
+        targetNeighbors = collectNeighborNodes(visited.getResults());
+
+//        if (!Objects.isNull(visited) ) {
+//            targetNeighbors.remove(visited.getFromNode());
+//        }
         reduceNetwork();
         return this.network;
     }
@@ -38,13 +40,15 @@ public class RouteCorrector {
         this.from = from;
     }
 
-    private List<Node> collectNeighborNodes() {
+    private List<Node> collectNeighborNodes(List<Edge> visited) {
         List<Node> allNodes = this.network.getAllNodes();
         if (allNodes.isEmpty()) {
             return allNodes;
         }
+        List<Node> visitedNodes = visited.stream().map(Edge::getFromNode).collect(Collectors.toList());
         return allNodes.stream()
                 .filter(this::isGoodDirection)
+                .filter(n -> !visitedNodes.contains(n))
                 .collect(Collectors.toList());
     }
 

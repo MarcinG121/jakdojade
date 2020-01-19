@@ -75,9 +75,6 @@ public class SimulatedAnnealing {
             } else {
                 if (acceptanceProbability(time, newTime)) {
                     currentRoute = generateNewRoute();
-                    i=0;
-                    j=0;
-                    stringBuilder.append("|");
                 }
             }
 
@@ -124,7 +121,7 @@ public class SimulatedAnnealing {
         for (int i=0; i < loopSize; i++) {
             Result nextRoute = null;
             try {
-                Network closedNeighbors = routeCorrector.findCloseNeighbors(nextEdge);
+                Network closedNeighbors = routeCorrector.findCloseNeighbors(result);
                 routeGenerator.changeNetwork(closedNeighbors);
                 nextRoute = routeGenerator.generateRoute();
             } catch (DestinationReachException e) {
@@ -178,11 +175,10 @@ public class SimulatedAnnealing {
     }
 
     private boolean acceptanceProbability(Integer time, Integer newTime) {
-        Random r = new Random();
 
         if (time.equals(newTime)) return false;
 
-        return r.nextInt() < Math.exp((time - newTime) / (actualTemp * K_b));
+        return Math.random() < Math.exp((time - newTime) / (actualTemp));
     }
 
     private void decreaseTemperature() {
