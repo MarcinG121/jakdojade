@@ -54,14 +54,17 @@ public class SimulatedAnnealing {
         currentRoute = generateNewRoute();
         Integer time = currentRoute.getCost();
         Integer newTime;
+        StringBuilder stringBuilder = new StringBuilder();
 
-
+        stringBuilder.append("[");
         while (actualTemp > minTemp) {
             int i = generateStartRepairing();
             int j = generateLoopSize();
             currentRoute = correctSolution(i,j);
             newTime = currentRoute.getCost();
-            System.out.println(currentRoute);
+
+            stringBuilder.append(String.format("%d, " ,currentRoute.getCost()));
+
             if (time > newTime) {
                 bestResults.add(currentRoute);
                 time = newTime;
@@ -76,6 +79,9 @@ public class SimulatedAnnealing {
                 return this.bestResults;
             }
         }
+        stringBuilder.setLength(stringBuilder.length()-2);
+        stringBuilder.append("]");
+        System.out.println(stringBuilder.toString());
         return this.bestResults;
     }
 

@@ -26,7 +26,7 @@ public class Environment {
         String typeCooling = "Logarytmical";
         Integer startTime = 600;
         Network network = MockNetworks.getNetworkFifty();
-        Node sourceNode = network.getRow(38).get(0).getFromNode();
+        Node sourceNode = network.getRow(46).get(0).getFromNode();
         Node destinationNode = network.getRow(2).get(0).getFromNode();
 
         SimulatedAnnealing annealing = new SimulatedAnnealing(initTemp, minTemp, collingRate, iterationsNum, K_b,
