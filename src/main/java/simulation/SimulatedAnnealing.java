@@ -9,8 +9,7 @@ import simulation.result.BestResults;
 import simulation.result.Result;
 import transport.implementation.Foot;
 
-import java.util.ArrayList;
-import java.util.Random;
+import java.util.*;
 
 @Data
 public class SimulatedAnnealing {
@@ -26,6 +25,7 @@ public class SimulatedAnnealing {
     private String typeCooling;
     private Integer startTime;
     private Result currentRoute;
+    private Result previousBestRoute;
 
     private Node sourceNode;
     private Node destinationNode;
@@ -52,29 +52,27 @@ public class SimulatedAnnealing {
     public BestResults solve() throws NegativeTimeValueException {
 
         currentRoute = generateNewRoute();
-        Integer time = currentRoute.getCost();
+        previousBestRoute = currentRoute;
+        Integer time = previousBestRoute.getCost();
+        bestResults.add(previousBestRoute);
         Integer newTime;
         StringBuilder stringBuilder = new StringBuilder();
-        int changeFirstSol = 0;
-        int i = 0;
-        int j = 0;
 
         stringBuilder.append("[");
         while (actualTemp > minTemp) {
 
-            i = generateStartRepairing(i);
-            j = generateLoopSize(j);
-            currentRoute = correctSolution(i,j);
+            currentRoute = generateNewResult();
             newTime = currentRoute.getCost();
 
-            stringBuilder.append(String.format("%d, " ,currentRoute.getCost()));
+            stringBuilder.append(String.format("%d, " ,previousBestRoute.getCost()));
 
             if (time > newTime) {
+                previousBestRoute = currentRoute;
                 bestResults.add(currentRoute);
                 time = newTime;
             } else {
                 if (acceptanceProbability(time, newTime)) {
-                    currentRoute = generateNewRoute();
+                    previousBestRoute = currentRoute;
                 }
             }
 
@@ -86,8 +84,23 @@ public class SimulatedAnnealing {
         stringBuilder.setLength(stringBuilder.length()-2);
         stringBuilder.append("]");
         System.out.println(stringBuilder.toString());
-        System.out.println(String.format("Ilość zmiany otoczenia: %d", changeFirstSol));
         return this.bestResults;
+    }
+
+    private Result generateNewResult() throws NegativeTimeValueException {
+
+        TreeMap<Integer, Result> resultMap = new TreeMap<>();
+
+        Result result1 = correctSolution(2, 5);
+        resultMap.put(result1.getCost(), result1);
+        Result result2 = correctSolution(10, 10);
+        resultMap.put(result2.getCost(), result2);
+        Result result3 = correctSolution(15, 5);
+        resultMap.put(result3.getCost(), result3);
+        Result result4 = correctSolution(2, 25);
+        resultMap.put(result4.getCost(), result4);
+
+        return resultMap.firstEntry().getValue();
     }
 
     private Result correctSolution(int startRepair, int loopSize) throws NegativeTimeValueException {
@@ -99,11 +112,11 @@ public class SimulatedAnnealing {
         Edge nextEdge = null;
         int count = 0;
 
-        if (startRepair > this.currentRoute.getResults().size()) {
-            return this.currentRoute.reachTargetOnFoot(this.destinationNode, this.sourceNode);
+        if (startRepair > this.previousBestRoute.getResults().size()) {
+            return this.previousBestRoute.reachTargetOnFoot(this.destinationNode, this.sourceNode);
         }
 
-        for (Edge edge : currentRoute.getResults()) {
+        for (Edge edge : previousBestRoute.getResults()) {
             if (count > startRepair) break;
             if (edge.getMeanOfTransport().getClass().equals(Foot.class)) break;
 
@@ -194,6 +207,15 @@ public class SimulatedAnnealing {
                         ((this.initTemp - this.minTemp) / (this.iterationsNum * this.minTemp * this.actualTemp));
                 break;
         }
+    }
+
+        private static int getRandomNumberInRange(int min, int max) {
+        if (min > max) {
+            throw new IllegalArgumentException("max must be greater than min");
+        }
+        if (min == max) return min;
+        Random r = new Random();
+        return r.nextInt((max - min) + 1) + min;
     }
 
 }
