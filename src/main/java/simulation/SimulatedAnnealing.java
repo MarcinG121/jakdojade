@@ -51,7 +51,7 @@ public class SimulatedAnnealing {
 
     public BestResults solve() throws NegativeTimeValueException {
 
-        currentRoute = generateNewRoute();
+        currentRoute = generateNewRoute(this.startTime);
         previousBestRoute = currentRoute;
         Integer time = previousBestRoute.getCost();
         bestResults.add(previousBestRoute);
@@ -64,15 +64,17 @@ public class SimulatedAnnealing {
             currentRoute = generateNewResult();
             newTime = currentRoute.getCost();
 
-            stringBuilder.append(String.format("%d, " ,previousBestRoute.getCost()));
-
             if (time > newTime) {
                 previousBestRoute = currentRoute;
-                bestResults.add(currentRoute);
+                stringBuilder.append(String.format("%d, " ,previousBestRoute.getCost()));
+                if (newTime < bestResults.getResults().get(bestResults.getResults().size()-1).getCost()) {
+                    bestResults.add(previousBestRoute);
+                }
                 time = newTime;
-            } else {
+            } else if (time < newTime) {
                 if (acceptanceProbability(time, newTime)) {
                     previousBestRoute = currentRoute;
+                    time = newTime;
                 }
             }
 
@@ -89,18 +91,47 @@ public class SimulatedAnnealing {
 
     private Result generateNewResult() throws NegativeTimeValueException {
 
-        TreeMap<Integer, Result> resultMap = new TreeMap<>();
-
-        Result result1 = correctSolution(2, 5);
-        resultMap.put(result1.getCost(), result1);
-        Result result2 = correctSolution(10, 10);
-        resultMap.put(result2.getCost(), result2);
-        Result result3 = correctSolution(15, 5);
-        resultMap.put(result3.getCost(), result3);
-        Result result4 = correctSolution(2, 25);
-        resultMap.put(result4.getCost(), result4);
-
-        return resultMap.firstEntry().getValue();
+//        TreeMap<Integer, Result> resultMap = new TreeMap<>();
+//
+//        Result result1 = correctSolution(10, 5);
+//        resultMap.put(result1.getCost(), result1);
+//        Result result2 = correctSolution(5, 25);
+//        resultMap.put(result2.getCost(), result2);
+//        Result result3 = correctSolution(16, 10);
+//        resultMap.put(result3.getCost(), result3);
+//        Result result4 = correctSolution(2, 25);
+//        resultMap.put(result4.getCost(), result4);
+//        Result result5 = correctSolution(0, 25);
+//        resultMap.put(result5.getCost(), result5);
+        double diff = (actualTemp -minTemp)/ initTemp;
+        if (diff > 0.8) {
+            return correctSolution(18, 3);
+        } else if (diff > 0.75) {
+            return correctSolution(17, 4);
+        } else if (diff > 0.7) {
+            return correctSolution(16, 5);
+        } else if (diff > 0.65) {
+            return correctSolution(15, 6);
+        } else if (diff > 0.6) {
+            return correctSolution(14, 7);
+        } else if (diff > 0.55) {
+            return correctSolution(13, 8);
+        } else if (diff > 0.5) {
+            return correctSolution(12, 9);
+        } else if (diff > 0.45) {
+            return correctSolution(11, 10);
+        } else if (diff > 0.4) {
+            return correctSolution(10, 11);
+        } else if (diff > 0.35) {
+            return correctSolution(9, 12);
+        } else if (diff > 0.3) {
+            return correctSolution(8, 13);
+        } else if (diff > 0.25) {
+            return correctSolution(7, 14);
+        } else if (diff > 0.2) {
+            return correctSolution(5, 15);
+        }
+        return correctSolution(getRandomNumberInRange(1, 5), getRandomNumberInRange(20, 25));
     }
 
     private Result correctSolution(int startRepair, int loopSize) throws NegativeTimeValueException {
@@ -113,7 +144,8 @@ public class SimulatedAnnealing {
         int count = 0;
 
         if (startRepair > this.previousBestRoute.getResults().size()) {
-            return this.previousBestRoute.reachTargetOnFoot(this.destinationNode, this.sourceNode);
+//            return this.previousBestRoute.reachTargetOnFoot(this.destinationNode, this.sourceNode);
+            return generateNewRoute(actualTime);
         }
 
         for (Edge edge : previousBestRoute.getResults()) {
@@ -152,7 +184,7 @@ public class SimulatedAnnealing {
                 routeCorrector.changeSourceNode(nextEdge.getToNode());
             }
         }
-        return result.reachTargetOnFoot(this.destinationNode, this.sourceNode);
+        return result.addResult(generateNewRoute(actualTime));
     }
 
     private int generateStartRepairing(int prev) {
@@ -177,8 +209,8 @@ public class SimulatedAnnealing {
         return prev;
     }
 
-    private Result generateNewRoute() {
-        RouteGenerator routeGenerator = new RouteGenerator(new Network(network), sourceNode, destinationNode, startTime);
+    private Result generateNewRoute(int actualTime) {
+        RouteGenerator routeGenerator = new RouteGenerator(new Network(network), sourceNode, destinationNode, actualTime);
         try {
             return routeGenerator.generateRoute().reachTargetOnFoot(this.destinationNode, null);
         } catch (DestinationReachException | DestinationUnreachableException | NegativeTimeValueException e) {

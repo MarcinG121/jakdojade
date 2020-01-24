@@ -31,6 +31,11 @@ public class Result implements Serializable {
         this.cost = this.cost + cost;
     }
 
+    public Result addResult(Result result) {
+        this.results.addAll(result.getResults());
+        return this;
+    }
+
     public Result reachTargetOnFoot(Node target, Node from) {
 
         Node last = null;

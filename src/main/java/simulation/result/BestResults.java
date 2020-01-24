@@ -1,7 +1,10 @@
 package simulation.result;
 
+import lombok.Data;
+
 import java.util.*;
 
+@Data
 public class BestResults {
 
     private static final Integer FIRST_ELEM = 1;
